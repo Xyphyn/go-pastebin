@@ -31,6 +31,28 @@ func PasteRoute() chi.Router {
 		re.JSON(w, 200, paste)
 	})
 
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		rows, err := db.DB.Query("SELECT content, title FROM pastes LIMIT 20")
+		if err != nil {
+			return
+		}
+		pastes := []Paste{}
+
+		for rows.Next() {
+			paste := Paste{}
+
+			if err := rows.Scan(&paste.Content, &paste.Title); err != nil {
+				return
+			}
+
+			pastes = append(pastes, paste)
+		}
+
+		fmt.Printf("found %d pastes: %+v", len(pastes), pastes)
+
+		re.JSON(w, 200, pastes)
+	})
+
 	router.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		var newPaste Paste
 
