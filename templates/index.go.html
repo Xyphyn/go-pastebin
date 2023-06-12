@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/assets/style.css" />
+        <title>Go bin</title>
+    </head>
+    <body>
+        <h1>Recent pastes</h1>
+        <ul class="paste-list">
+            {{ range .Pastes }}
+            <li class="paste">
+                <a class="paste-link" href="/api/pastes/{{ .ID }}"></a>
+                <h3>{{ .Title }}</h3>
+                <p>{{ .Content }}</p>
+            </li>
+            {{ end }}
+        </ul>
+    </body>
+</html>

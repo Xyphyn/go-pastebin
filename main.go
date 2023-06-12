@@ -1,13 +1,38 @@
 package main
 
 import (
-	_ "github.com/jackc/pgx/v4/stdlib"
-	"xylight.dev/pastebin/db"
-	"xylight.dev/pastebin/routes"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+	"xylight.dev/pastebin/common"
+	"xylight.dev/pastebin/routers"
 )
 
-func main() {
-	db.InitDB()
+func Migrate(db *gorm.DB) {
+	db.AutoMigrate(&routers.Paste{})
+}
 
-	_ = routes.NewServer()
+func main() {
+	db := common.Init()
+	Migrate(db)
+
+	r := gin.Default()
+	r.LoadHTMLGlob("templates/*")
+	r.Static("/assets", "./static")
+
+	r.NoRoute(func(c *gin.Context) {
+		c.JSON(404, gin.H{"message": "Not found"})
+	})
+
+	r.GET("/", func(c *gin.Context) {
+		data := routers.GetPastes()
+		c.HTML(200, "index.go.html", gin.H{
+			"Pastes": data,
+		})
+	})
+
+	api := r.Group("/api")
+
+	routers.APIRouter(api)
+
+	r.Run("0.0.0.0:3000")
 }
