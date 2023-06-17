@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"xylight.dev/pastebin/common"
@@ -27,6 +29,22 @@ func main() {
 		data := routers.GetPastes()
 		c.HTML(200, "index.go.html", gin.H{
 			"Pastes": data,
+		})
+	})
+
+	r.POST("/", func(c *gin.Context) {
+		data, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			c.AbortWithStatus(400)
+			return
+		}
+
+		common.DB.Create(&routers.Paste{
+			Title:   "No title",
+			Content: string(data),
+		})
+		c.JSON(201, gin.H{
+			"message": "Created",
 		})
 	})
 
